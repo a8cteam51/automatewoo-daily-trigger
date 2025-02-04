@@ -1,27 +1,52 @@
 <?php
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Prevent direct access
-}
-
 class AutomateWoo_Timed_Trigger extends AutomateWoo\Trigger {
 
 	/** @var array */
 	public $supplied_data_items = array();
 
 	/**
-	 * The selected timing for the trigger
-	 *
-	 * @var string
-	 */
-	private $timing;
-
-	/**
 	 * Set up the trigger details.
 	 */
-	public function init() {
+	public function load_admin_details() {
 		$this->title = __( 'Timed Trigger', 'automatewoo-custom' );
 		$this->group = __( 'Timed Triggers', 'automatewoo-custom' );
+		
+		$this->load_fields();
+	}
+
+	/**
+	 * Register hooks for all timing options
+	 */
+	public function register_hooks() {
+		$timing_hooks = array(
+			'automatewoo_two_minute_worker',
+			'automatewoo_five_minute_worker',
+			'automatewoo_fifteen_minute_worker',
+			'automatewoo_thirty_minute_worker',
+			'automatewoo_hourly_worker',
+			'automatewoo_four_hourly_worker',
+			'automatewoo_daily_worker',
+			'automatewoo_two_days_worker',
+			'automatewoo_weekly_worker'
+		);
+
+		foreach ( $timing_hooks as $hook ) {
+			add_action( $hook, array( $this, 'handle_timing_hook' ) );
+		}
+	}
+
+	/**
+	 * Handle timing hook execution
+	 */
+	public function handle_timing_hook() {
+		$current_hook = current_filter();
+		$this->maybe_run(
+			array(),
+			array(
+				'timing' => $current_hook
+			)
+		);
 	}
 
 	/**
@@ -41,7 +66,7 @@ class AutomateWoo_Timed_Trigger extends AutomateWoo\Trigger {
 		);
 
 		$field = new AutomateWoo\Fields\Select();
-		$field->set_name('timing');
+		$field->set_name( 'timing' );
 		$field->set_title( __( 'Run Frequency', 'automatewoo-custom' ) );
 		$field->set_options( $timing_options );
 		$field->set_required( true );
@@ -51,30 +76,24 @@ class AutomateWoo_Timed_Trigger extends AutomateWoo\Trigger {
 	}
 
 	/**
-	 * Defines the hook when the trigger is run.
-	 */
-	public function register_hooks() {
-		$this->timing = $this->get_option( 'timing' );
-		
-		if ( $this->timing ) {
-			add_action( $this->timing, array( $this, 'catch_hooks' ) );
-		}
-	}
-
-	/**
-	 * Catches the action and triggers the workflow.
-	 */
-	public function catch_hooks() {
-		$this->maybe_run();
-	}
-
-	/**
-	 * Validates the workflow. Always returns true as this is a time-based trigger.
+	 * Validate the workflow before running.
 	 *
-	 * @param $workflow AutomateWoo\Workflow
+	 * @param \AutomateWoo\Workflow $workflow
 	 * @return bool
 	 */
 	public function validate_workflow( $workflow ) {
-		return true;
+		$timing = $workflow->get_trigger_option( 'timing' );
+		$current_hook = current_filter();
+
+		return $timing === $current_hook;
+	}
+
+	/**
+	 * Get the name of this trigger.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return 'automatewoo_timed_trigger';
 	}
 }
