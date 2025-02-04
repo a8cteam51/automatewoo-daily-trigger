@@ -1,13 +1,24 @@
 | :exclamation:  This is a public repository |
 |--------------------------------------------|
 
-# AutomateWoo Custom Trigger - Runs Daily
+# AutomateWoo Custom Trigger - Timed Trigger
 
-Extends the functionality of AutomateWoo with a custom trigger which runs daily. 
+Extends the functionality of AutomateWoo with a custom trigger which can run at configurable intervals.
 
 ## Usage
 
-This operates similar to the "Customer Win Back" trigger, in that it will simply trigger once per day, at midnight. Since there is no order, subscription or customer associated with this, only shopwide rules and actions can be used with it.
+This trigger allows you to run workflows at various time intervals, from as frequently as every 2 minutes to as infrequently as weekly. Since there is no order, subscription or customer associated with this, only shopwide rules and actions can be used with it.
+
+Available intervals:
+- Every 2 minutes
+- Every 5 minutes
+- Every 15 minutes
+- Every 30 minutes
+- Every hour
+- Every 4 hours
+- Daily
+- Every 2 days
+- Weekly
 
 ## Support
 
